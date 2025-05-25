@@ -1,25 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Half-Circle Localization Radar</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Half Radar Widget</title>
+  <style>
+    body {
+      background: #101010;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    svg {
+      background: #1e1e1e;
+      border-radius: 12px;
+    }
+    .ring {
+      stroke: #666;
+      fill: none;
+      stroke-dasharray: 4, 4;
+    }
+    #dot {
+      fill: #00ff00;
+      stroke: #0f0;
+      stroke-width: 1px;
+    }
+  </style>
 </head>
 <body>
-  <div id="radar-container">
-    <svg width="400" height="200" viewBox="0 0 400 200">
-      <!-- Half circle (arc path) -->
-      <path d="M0,200 A200,200 0 0,1 400,200" class="ring" />
+  <svg id="radar" width="400" height="200" viewBox="0 0 400 200">
+    <!-- Main half-circle -->
+    <path d="M0,200 A200,200 0 0,1 400,200" class="ring"/>
+    <!-- Optional inner circles -->
+    <path d="M50,200 A150,150 0 0,1 350,200" class="ring"/>
+    <path d="M100,200 A100,100 0 0,1 300,200" class="ring"/>
+    <path d="M150,200 A50,50 0 0,1 250,200" class="ring"/>
+    <!-- Dot -->
+    <circle id="dot" cx="200" cy="200" r="6" />
+  </svg>
 
-      <!-- Optional inner rings for reference -->
-      <path d="M50,200 A150,150 0 0,1 350,200" class="ring" />
-      <path d="M100,200 A100,100 0 0,1 300,200" class="ring" />
-      <path d="M150,200 A50,50 0 0,1 250,200" class="ring" />
+  <script>
+    window.buildChart = function (context) {
+      const payload = context?.data || [];
 
-      <!-- Target dot -->
-      <circle id="dot" cx="200" cy="200" r="6" />
-    </svg>
-  </div>
-  <script src="script.js"></script>
+      const angleData = payload.find(v => v.variable === 'angle');
+      const distanceData = payload.find(v => v.variable === 'distance');
+
+      if (!angleData || !distanceData) {
+        console.warn("Missing angle or distance variable.");
+        return;
+      }
+
+      const angle = parseFloat(angleData.value);    // degrees
+      const distance = parseFloat(distanceData.value);  // meters
+
+      const svg = document.getElementById("radar");
+      const dot = document.getElementById("dot");
+
+      const svgWidth = 400;
+      const svgHeight = 200;
+      const maxRadius = 4; // meters
+      const pixelsPerMeter = svgWidth / (maxRadius * 2);
+
+      const angleRad = angle * Math.PI / 180;
+      const x = distance * Math.sin(angleRad);
+      const y = distance * Math.cos(angleRad);
+
+      const centerX = svgWidth / 2;
+      const centerY = svgHeight;
+
+      const svgX = centerX + x * pixelsPerMeter;
+      const svgY = centerY - y * pixelsPerMeter;
+
+      dot.setAttribute("cx", svgX);
+      dot.setAttribute("cy", svgY);
+    };
+  </script>
 </body>
 </html>

@@ -1,26 +1,36 @@
-// INPUT: angle in degrees, distance in meters
-const angleDeg = 45;        // 0 = straight, +45 = right, -45 = left
-const distance = 3.2;       // meters, max 4
+// Wait for TagoIO to inject payload
+window.addEventListener("load", () => {
+  // Grab variables from payload array
+  const angleVar = payload.find((v) => v.variable === "angle");
+  const distanceVar = payload.find((v) => v.variable === "distance");
 
-// SVG settings
-const maxRadius = 4;       // meters
-const svgWidth = 400;
-const svgHeight = 200;
-const pixelsPerMeter = svgWidth / (maxRadius * 2);  // 50px per meter
+  if (!angleVar || !distanceVar) {
+    console.warn("Angle or distance data missing in payload.");
+    return;
+  }
 
-// Convert angle to radians
-const angleRad = angleDeg * (Math.PI / 180);
+  const angleDeg = parseFloat(angleVar.value);      // e.g. 45
+  const distance = parseFloat(distanceVar.value);   // e.g. 3.2
 
-// Convert polar to Cartesian (x, y)
-const x = distance * Math.sin(angleRad);   // left/right
-const y = distance * Math.cos(angleRad);   // distance forward
+  // ---- SVG radar config ----
+  const svgWidth = 400;
+  const svgHeight = 200;
+  const maxRadius = 4; // meters
+  const pixelsPerMeter = svgWidth / (maxRadius * 2); // 50px/m
 
-// Convert to SVG coordinates
-const centerX = svgWidth / 2;
-const centerY = svgHeight;
+  // Convert polar to Cartesian
+  const angleRad = angleDeg * (Math.PI / 180);
+  const x = distance * Math.sin(angleRad);
+  const y = distance * Math.cos(angleRad);
 
-const svgX = centerX + x * pixelsPerMeter;
-const svgY = centerY - y * pixelsPerMeter;
+  const centerX = svgWidth / 2;
+  const centerY = svgHeight;
 
-document.getElementById('dot').setAttribute('cx', svgX);
-document.getElementById('dot').setAttribute('cy', svgY);
+  const svgX = centerX + x * pixelsPerMeter;
+  const svgY = centerY - y * pixelsPerMeter;
+
+  // Place the dot
+  const dot = document.getElementById("dot");
+  dot.setAttribute("cx", svgX);
+  dot.setAttribute("cy", svgY);
+});
