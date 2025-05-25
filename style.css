@@ -1,0 +1,23 @@
+body {
+  background-color: #101010;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+#radar-container {
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.ring {
+  stroke: #888;
+  fill: none;
+  stroke-dasharray: 5, 5;
+}
+
+#dot {
+  fill: #00ff00;
+}
